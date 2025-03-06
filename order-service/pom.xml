@@ -55,7 +55,7 @@
             <artifactId>quarkus-info</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.tietoevry.quarkus</groupId>
+            <groupId>io.quarkiverse.resteasy-problem</groupId>
             <artifactId>quarkus-resteasy-problem</artifactId>
         </dependency>
         <dependency>
