@@ -105,35 +105,23 @@ public class MDCContextPropagator implements ContextPropagator {
         Map<String, String> contextMap = new HashMap<>();
         context.forEach((key, payload) -> {
 
-            // Handle empty {} when the data value is empty
-            // Adding opentracing seems to add a new value with empty data
-            // and the dataconverter throws an error
-            // This actually might be a configuration error from earlier
-            // but leaving in right now
-            //
-            // {_tracer-data=metadata {
-            // key: "encoding"
-            // value: "json/plain"
-            // }
-            // data: "{}"
-            // }
             try {
-                String payloadValue = StringUtils.EMPTY; // default value
+                Object payloadValue = StringUtils.EMPTY; // default value
 
                 // Convert data to string to compare
                 ByteString data = payload.getData();
 
                 // Check the value to see if it "empty"
-                if (data != null && !data.isEmpty()) {
+                if (!data.isEmpty()) {
 
                     // Check if the value isn't {}'s
                     if (!StringUtils.equals("{}", data.toStringUtf8())) {
-                        payloadValue = GlobalDataConverter.get().fromPayload(payload, String.class, String.class);
+                        payloadValue = GlobalDataConverter.get().fromPayload(payload, Object.class, Object.class);
                     }
                 }
 
                 // Add the value into the map
-                contextMap.put(key, payloadValue);
+                contextMap.put(key, payloadValue.toString());
             } catch (Exception e) {
                 log.warn("Couldn't parse MDC Context Data Key {}", key);
             }
