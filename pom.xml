@@ -24,7 +24,7 @@
         <skipITs>true</skipITs>
         <!-- Quarkus configuration -->
         <quarkus.platform.version>3.27.0</quarkus.platform.version>
-        <temporal-extension.version>0.1.4</temporal-extension.version>
+        <temporal-extension.version>0.2.0</temporal-extension.version>
         <resteasy-problem.version>3.21.0</resteasy-problem.version>
         <primefaces-quarkus.version>4.15.10</primefaces-quarkus.version>
         <primeflex.version>3.3.1</primeflex.version>
