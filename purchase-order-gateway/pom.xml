@@ -50,8 +50,8 @@
             <artifactId>quarkus-info</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkiverse.resteasy-problem</groupId>
-            <artifactId>quarkus-resteasy-problem</artifactId>
+            <groupId>io.quarkiverse.httpproblem</groupId>
+            <artifactId>quarkus-http-problem</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -74,7 +74,7 @@
         <!-- Test -->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
+            <artifactId>quarkus-junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
