@@ -74,7 +74,9 @@ The above will start the following services:
 
 ## Running Workflow
 
-You will need to have all 6 services running using `mvn quarkus:dev`, I recommend running them each in their own command prompt window for easy testing and startup/shutdown.
+First, from the root of the project you must compile and build all dependencies using `mvn clean install`.
+
+Next, you will need to have all 6 services running using `mvn quarkus:dev`, I recommend running them each in their own command prompt window for easy testing and startup/shutdown.
 
 To start the workflow go to [Gateway Service DevUI](http://localhost:8082/q/dev-ui/) and find the OpenAPI card. There you can use the OpenAPI UI to call the REST Service with the following example payload (make changes as you like):
 
