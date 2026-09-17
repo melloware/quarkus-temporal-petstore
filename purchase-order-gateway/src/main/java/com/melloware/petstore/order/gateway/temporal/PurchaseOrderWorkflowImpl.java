@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.melloware.petstore.common.activities.order.OrderNotificationActivities;
 import com.melloware.petstore.common.activities.order.OrderServiceActivities;
 import com.melloware.petstore.common.activities.payment.PaymentActivities;
@@ -18,6 +20,7 @@ import com.melloware.petstore.common.models.enums.OrderFailureReason;
 import com.melloware.petstore.common.models.exceptions.BadPaymentInfoException;
 import com.melloware.petstore.common.models.exceptions.OutOfStockException;
 import com.melloware.petstore.common.models.exceptions.PaymentDeclinedException;
+import com.melloware.petstore.common.models.exceptions.PurchasingException;
 import com.melloware.petstore.common.models.json.CheckInventoryRequest;
 import com.melloware.petstore.common.models.json.CreateOrderRequest;
 import com.melloware.petstore.common.models.json.CreateOrderResponse;
@@ -33,6 +36,9 @@ import com.melloware.petstore.common.models.json.Product;
 import com.melloware.petstore.common.models.json.ReverseActionsForTransactionRequest;
 import com.melloware.petstore.common.utils.TemporalActivityExceptionChecker;
 
+import io.quarkiverse.temporal.TemporalActivityStub;
+import io.quarkus.arc.ArcUndeclaredThrowableException;
+import io.temporal.activity.ActivityCancellationType;
 import io.temporal.failure.CanceledFailure;
 import io.temporal.failure.TemporalFailure;
 import io.temporal.workflow.Saga;
@@ -62,12 +68,38 @@ import lombok.extern.jbosslog.JBossLog;
 @JBossLog
 public class PurchaseOrderWorkflowImpl implements PurchaseOrderWorkflow {
 
-    private final PaymentActivities paymentActivity = ActivityStubsProvider.getPaymentActivities();
-    private final OrderNotificationActivities notificationActivity = ActivityStubsProvider
-            .getOrderNotificationActivities();
-    private final OrderServiceActivities orderActivity = ActivityStubsProvider.getOrderServiceActivities();
-    private final WarehouseActivities warehouseActivity = ActivityStubsProvider.getWarehouseActivities();
-    private final ShipperActivities shipmentActivity = ActivityStubsProvider.getShipperActivities();
+    // Activity stubs are created by the extension when the workflow instance is created,
+    // this is equivalent to Workflow.newActivityStub(...) in a field initializer.
+    // Retries are limited for demo purposes.
+    @TemporalActivityStub(taskQueue = "payment-tasks", startToCloseTimeout = "30s", cancellationType = ActivityCancellationType.WAIT_CANCELLATION_COMPLETED, retryInitialInterval = "1s", retryMaximumInterval = "100s", retryBackoffCoefficient = 2, retryMaximumAttempts = 500, retryDoNotRetry = {
+            ArcUndeclaredThrowableException.class, BadPaymentInfoException.class, ConstraintViolationException.class,
+            JsonMappingException.class, NullPointerException.class, OutOfStockException.class,
+            PaymentDeclinedException.class, PurchasingException.class, IllegalArgumentException.class })
+    private PaymentActivities paymentActivity;
+
+    @TemporalActivityStub(taskQueue = "notification-tasks", startToCloseTimeout = "30s", cancellationType = ActivityCancellationType.WAIT_CANCELLATION_COMPLETED, retryInitialInterval = "1s", retryMaximumInterval = "100s", retryBackoffCoefficient = 2, retryMaximumAttempts = 500, retryDoNotRetry = {
+            ArcUndeclaredThrowableException.class, BadPaymentInfoException.class, ConstraintViolationException.class,
+            JsonMappingException.class, NullPointerException.class, OutOfStockException.class,
+            PaymentDeclinedException.class, PurchasingException.class, IllegalArgumentException.class })
+    private OrderNotificationActivities notificationActivity;
+
+    @TemporalActivityStub(taskQueue = "order-tasks", startToCloseTimeout = "30s", cancellationType = ActivityCancellationType.WAIT_CANCELLATION_COMPLETED, retryInitialInterval = "1s", retryMaximumInterval = "100s", retryBackoffCoefficient = 2, retryMaximumAttempts = 500, retryDoNotRetry = {
+            ArcUndeclaredThrowableException.class, BadPaymentInfoException.class, ConstraintViolationException.class,
+            JsonMappingException.class, NullPointerException.class, OutOfStockException.class,
+            PaymentDeclinedException.class, PurchasingException.class, IllegalArgumentException.class })
+    private OrderServiceActivities orderActivity;
+
+    @TemporalActivityStub(taskQueue = "warehouse-tasks", startToCloseTimeout = "30s", cancellationType = ActivityCancellationType.WAIT_CANCELLATION_COMPLETED, retryInitialInterval = "1s", retryMaximumInterval = "100s", retryBackoffCoefficient = 2, retryMaximumAttempts = 500, retryDoNotRetry = {
+            ArcUndeclaredThrowableException.class, BadPaymentInfoException.class, ConstraintViolationException.class,
+            JsonMappingException.class, NullPointerException.class, OutOfStockException.class,
+            PaymentDeclinedException.class, PurchasingException.class, IllegalArgumentException.class })
+    private WarehouseActivities warehouseActivity;
+
+    @TemporalActivityStub(taskQueue = "shipment-tasks", startToCloseTimeout = "30s", cancellationType = ActivityCancellationType.WAIT_CANCELLATION_COMPLETED, retryInitialInterval = "1s", retryMaximumInterval = "100s", retryBackoffCoefficient = 2, retryMaximumAttempts = 500, retryDoNotRetry = {
+            ArcUndeclaredThrowableException.class, BadPaymentInfoException.class, ConstraintViolationException.class,
+            JsonMappingException.class, NullPointerException.class, OutOfStockException.class,
+            PaymentDeclinedException.class, PurchasingException.class, IllegalArgumentException.class })
+    private ShipperActivities shipmentActivity;
 
     /**
      * Initiates and executes the order placement workflow.

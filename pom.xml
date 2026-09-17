@@ -24,7 +24,7 @@
         <skipITs>true</skipITs>
         <!-- Quarkus configuration -->
         <quarkus.platform.version>3.39.1</quarkus.platform.version>
-        <temporal-extension.version>0.5.1</temporal-extension.version>
+        <temporal-extension.version>0.6.0</temporal-extension.version>
         <primefaces-quarkus.version>4.15.17</primefaces-quarkus.version>
         <primeflex.version>4.0.0</primeflex.version>
         <mailpit.version>2.1.2</mailpit.version>
